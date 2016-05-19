@@ -20,7 +20,7 @@
 #ifndef _tds_sysdep_public_h_
 #define _tds_sysdep_public_h_
 
-#if defined(__STDC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #  include <stdint.h>
 /*
 ** This is where platform-specific changes need to be made.
@@ -45,6 +45,8 @@
     typedef unsigned __int64 uintptr_t;	/* 64-bit int */
 #  endif
 #else				/* defined(WIN32) || defined(_WIN32) || defined(__WIN32__) */
+  typedef   signed char      int8_t;	/* 8-bit int */
+  typedef unsigned char     uint8_t;	/* 8-bit int */
   typedef   signed  @tds_sysdep_int16_type@   int16_t;	/* 16-bit int */
   typedef unsigned  @tds_sysdep_int16_type@  uint16_t;	/* 16-bit int */
   typedef   signed  @tds_sysdep_int32_type@   int32_t;	/* 32-bit int */
