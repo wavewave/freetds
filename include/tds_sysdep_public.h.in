@@ -21,12 +21,12 @@
 #define _tds_sysdep_public_h_
 
 #if defined(__STDC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-#error should not get into here
 #  include <stdint.h>
 /*
 ** This is where platform-specific changes need to be made.
 */
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+#error we should get this
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #  include <windows.h>
