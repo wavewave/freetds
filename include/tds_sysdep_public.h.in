@@ -20,6 +20,10 @@
 #ifndef _tds_sysdep_public_h_
 #define _tds_sysdep_public_h_
 
+#if !defined(__STDC__)
+#error __STDC__ not defined!
+#endif
+
 #if defined(__STDC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #  include <stdint.h>
 /*
