@@ -30,6 +30,8 @@
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #  include <windows.h>
+  typedef   signed char      int8_t;	/* 8-bit int */
+  typedef unsigned char     uint8_t;	/* 8-bit int */
   typedef   signed short    int16_t;	/* 16-bit int */
   typedef unsigned short   uint16_t;	/* 16-bit int */
   typedef   signed int      int32_t;	/* 32-bit int */
