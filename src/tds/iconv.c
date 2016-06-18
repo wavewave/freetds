@@ -706,12 +706,11 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 		return 0;
 	}
 
-        printf("from->charset = %s\n", (from->charset).name);
-	printf("to->charset = %s\n", (to->charset).name);
+        //printf("from->charset = %s\n", (from->charset).name);
+	//printf("to->charset = %s\n", (to->charset).name);
 
 
         if( !strcmp((to->charset).name, "CP1252") ) {
-	  printf("inside if\n");
 	  cp1252_workaround(inbuf, inbytesleft, outbuf, outbytesleft );
 	  return 0;
 	};
