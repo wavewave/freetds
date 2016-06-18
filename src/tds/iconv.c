@@ -504,6 +504,107 @@ tds_iconv_free(TDSCONNECTION * conn)
 	conn->char_conv_count = 0;
 }
 
+
+static unsigned char
+cp1252_convert(const unsigned char c0, const unsigned char c1)
+{
+  switch (c1) {
+  case 0x0:
+    return c0;
+  case 0x20:
+    switch( c0 ) {
+    case 0xac:
+      return 128;
+    case 0x1a:
+      return 130;
+    case 0x1e:
+      return 132;
+    case 0x26:
+      return 133;
+    case 0x20:
+      return 134;
+    case 0x21:
+      return 135;
+    case 0x30:
+      return 137;
+    case 0x39:
+      return 139;
+    case 0x18:
+      return 145;
+    case 0x19:
+      return 146;
+    case 0x1c:
+      return 147;
+    case 0x1d:
+      return 148;
+    case 0x22:
+      return 149;
+    case 0x13:
+      return 150;
+    case 0x14:
+      return 151;
+    case 0x3a:
+      return 155;
+    default:
+      return 0x3f; // ?
+    }
+  case 0x01:
+    switch( c0 ) {
+    case 0x92:
+      return 131;
+    case 0x60:
+      return 138;
+    case 0x52:
+      return 140;
+    case 0x7d:
+      return 142;
+    case 0x61:
+      return 154;
+    case 0x53:
+      return 156;
+    case 0x7e:
+      return 158;
+    case 0x78:
+      return 159;
+    default:
+      return 0x3f; // ?
+    }
+  case 0x02:
+    switch( c0 ) {
+    case 0xc6:
+      return 136;
+    case 0xdc:
+      return 152;
+    default:
+      return 0x3f; // ?
+    }
+  case 0x21:
+    switch( c0 ) {
+    case 0x22:
+      return 153;
+    default:
+      return 0x3f; //  ?
+    }
+  default:
+    return 0x3f; // ?
+  }
+}
+
+static void
+cp1252_workaround(const char **inbuf, size_t* inbytesleft,
+		  char **outbuf, size_t* outbytesleft )
+{
+  size_t len = *inbytesleft < (*outbytesleft)*2 ? *inbytesleft : (*outbytesleft)*2;  
+  int i ; 
+  for( i = 0 ; i < len/2 ; i++ ) {
+    (*outbuf)[i] = (char)cp1252_convert ((unsigned char)(*inbuf)[2*i], (unsigned char)(*inbuf)[2*i+1]);
+  }
+  *inbytesleft -= len;
+  *outbytesleft -= len/2;
+  *inbuf += len;
+  *outbuf += len;
+}
+
 static void
 tds_iconv_err(TDSSOCKET *tds, int err)
 {
@@ -564,9 +665,10 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 	/* cast away const-ness */
 	TDS_ERRNO_MESSAGE_FLAGS *suppress = (TDS_ERRNO_MESSAGE_FLAGS*) &conv->suppress;
 	// IWKIM
-	char c0, c1;
+	char c0, c1, c_1, c_2;
 	unsigned char u0, u1; 
 
+	
 	assert(inbuf && inbytesleft && outbuf && outbytesleft);
 
 	/* if empty there's nothing to return.
@@ -604,6 +706,16 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 		*outbuf += len;
 		return 0;
 	}
+
+        printf("from->charset = %s\n", (from->charset).name);
+	printf("to->charset = %s\n", (to->charset).name);
+
+
+        if( !strcmp((to->charset).name, "CP1252") ) {
+	  printf("inside if\n");
+	  cp1252_workaround(inbuf, inbytesleft, outbuf, outbytesleft );
+	  return 0;
+	};
 
 
 	
@@ -643,6 +755,7 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 		sprintf(str, "Control code detected: **inbuf, *(*inbuf+1) = 0x%1x 0x%1x \n", (unsigned)u0, (unsigned)u1);
 		tdsdump_log(TDS_DBG_SEVERE, str);
                 if (( u0 == 0x81 || u0 == 0x8d || u0 == 0x8f || u0 == 0x90 || u0 == 0x9d ) && u1 == 0x00) {
+		  
 		  *(*outbuf) = c0;
 		  //// *(*outbuf+1) = c1;
 		  (*inbytesleft) -= 2;		  
@@ -651,7 +764,7 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 		  (*outbuf) ++;
                   eilseq_raised	= 0;
 		  break; 
-		  } 
+                } 
 
 
 		/* 
