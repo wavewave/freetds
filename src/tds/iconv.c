@@ -590,7 +590,7 @@ cp1252_convert(const unsigned char c0, const unsigned char c1)
   }
 }
 
-static void
+static size_t
 cp1252_workaround(const char **inbuf, size_t* inbytesleft,
 		  char **outbuf, size_t* outbytesleft )
 {
@@ -602,7 +602,7 @@ cp1252_workaround(const char **inbuf, size_t* inbytesleft,
   *inbytesleft -= len;
   *outbytesleft -= len/2;
   *inbuf += len;
-  *outbuf += len;
+  *outbuf += len/2;
 }
 
 static void
@@ -610,7 +610,6 @@ tds_iconv_err(TDSSOCKET *tds, int err)
 {
   if (tds) {
 		tdserror(tds_get_ctx(tds), tds, err, 0);
-		printf("test here\n");
   }
 }
 
