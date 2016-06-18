@@ -665,8 +665,8 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 	/* cast away const-ness */
 	TDS_ERRNO_MESSAGE_FLAGS *suppress = (TDS_ERRNO_MESSAGE_FLAGS*) &conv->suppress;
 	// IWKIM
-	char c0, c1, c_1, c_2;
-	unsigned char u0, u1; 
+	//char c0, c1, c_1, c_2;
+	//unsigned char u0, u1; 
 
 	
 	assert(inbuf && inbytesleft && outbuf && outbytesleft);
@@ -749,29 +749,28 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 		if (conv_errno != EILSEQ || io != to_client || !inbuf)
 			break;
 
-                c0 = **inbuf    ; u0 = (unsigned char)c0;
-		c1 = *(*inbuf+1); u1 = (unsigned char)c1;
-		char str[100];
-		sprintf(str, "Control code detected: **inbuf, *(*inbuf+1) = 0x%1x 0x%1x \n", (unsigned)u0, (unsigned)u1);
-		tdsdump_log(TDS_DBG_SEVERE, str);
-                if (( u0 == 0x81 || u0 == 0x8d || u0 == 0x8f || u0 == 0x90 || u0 == 0x9d ) && u1 == 0x00) {
+                // c0 = **inbuf    ; u0 = (unsigned char)c0;
+		// c1 = *(*inbuf+1); u1 = (unsigned char)c1;
+		// char str[100];
+		// sprintf(str, "Control code detected: **inbuf, *(*inbuf+1) = 0x%1x 0x%1x \n", (unsigned)u0, (unsigned)u1);
+		// tdsdump_log(TDS_DBG_SEVERE, str);
+                // if (( u0 == 0x81 || u0 == 0x8d || u0 == 0x8f || u0 == 0x90 || u0 == 0x9d ) && u1 == 0x00) {
 		  
-		  *(*outbuf) = c0;
-		  //// *(*outbuf+1) = c1;
-		  (*inbytesleft) -= 2;		  
-		  (*outbytesleft) --;
-		  (*inbuf) += 2 ;
-		  (*outbuf) ++;
-                  eilseq_raised	= 0;
-		  break; 
-                } 
+		//  *(*outbuf) = c0;
+		//  //// *(*outbuf+1) = c1;
+		//    (*inbytesleft) -= 2;		  
+		//  (*outbytesleft) --;
+		//  (*inbuf) += 2 ;
+		//  (*outbuf) ++;
+                //  eilseq_raised	= 0;
+		//  break; 
+                //} 
 
 
 		/* 
 		 * Invalid input sequence encountered reading from server. 
 		 * Skip one input sequence, adjusting pointers. 
 		 */
-		
 		one_character = skip_one_input_sequence(to->cd, &from->charset, inbuf, inbytesleft);
 
 		if (!one_character)
@@ -808,7 +807,6 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 			if (irreversible == (size_t) - 1) {
 				tds_iconv_err(tds, TDSEICONV2BIG);
 			} else {
-			  printf("culprit0");
 				tds_iconv_err(tds, TDSEICONVI);
 				conv_errno = 0;
 			}
