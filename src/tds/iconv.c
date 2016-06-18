@@ -639,9 +639,10 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 
                 c0 = **inbuf    ; u0 = (unsigned char)c0;
 		c1 = *(*inbuf+1); u1 = (unsigned char)c1;
-		//printf("**inbuf, *(*inbuf+1) = 0x%1x 0x%1x \n", (unsigned)u0, (unsigned)u1);
+		char str[100];
+		sprintf(str, "Control code detected: **inbuf, *(*inbuf+1) = 0x%1x 0x%1x \n", (unsigned)u0, (unsigned)u1);
+		tdsdump_log(TDS_DBG_SEVERE, str);
                 if (( u0 == 0x81 || u0 == 0x8d || u0 == 0x8f || u0 == 0x90 || u0 == 0x9d ) && u1 == 0x00) {
-		  //printf("inside if\n");
 		  *(*outbuf) = c0;
 		  //// *(*outbuf+1) = c1;
 		  (*inbytesleft) -= 2;		  
@@ -649,19 +650,8 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 		  (*inbuf) += 2 ;
 		  (*outbuf) ++;
                   eilseq_raised	= 0;
-                  // conv_errno = 0;
-   		  /* lquest_mark = 1;
-		  pquest_mark = c0; // quest_mark;
-
-		  irreversible = tds_sys_iconv(error_cd, &pquest_mark, &lquest_mark, outbuf, outbytesleft);
-   		  one_character = skip_one_input_sequence(to->cd, &from->charset, inbuf, inbytesleft);
-		  */
-		  // return 0;
-  		  // one_character = skip_one_input_sequence(to->cd, &from->charset, inbuf, inbytesleft);
-		  // one_character = skip_one_input_sequence(to->cd, &from->charset, inbuf, inbytesleft);
-		  
 		  break; 
-	        }
+		  } 
 
 
 		/* 
