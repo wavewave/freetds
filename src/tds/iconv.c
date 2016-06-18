@@ -507,8 +507,10 @@ tds_iconv_free(TDSCONNECTION * conn)
 static void
 tds_iconv_err(TDSSOCKET *tds, int err)
 {
-	if (tds)
+  if (tds) {
 		tdserror(tds_get_ctx(tds), tds, err, 0);
+		printf("test here\n");
+  }
 }
 
 /** 
@@ -561,6 +563,9 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 	int conv_errno;
 	/* cast away const-ness */
 	TDS_ERRNO_MESSAGE_FLAGS *suppress = (TDS_ERRNO_MESSAGE_FLAGS*) &conv->suppress;
+	// IWKIM
+	char c0, c1;
+	unsigned char u0, u1; 
 
 	assert(inbuf && inbytesleft && outbuf && outbytesleft);
 
@@ -600,6 +605,8 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 		return 0;
 	}
 
+
+	
 	/*
 	 * Call iconv() as many times as necessary, until we reach the end of input or exhaust output.  
 	 */
@@ -629,10 +636,33 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 
 		if (conv_errno != EILSEQ || io != to_client || !inbuf)
 			break;
+
+                c0 = **inbuf    ; u0 = (unsigned char)c0;
+		c1 = *(*inbuf+1); u1 = (unsigned char)c1;
+		printf("**inbuf, *(*inbuf+1) = 0x%1x 0x%1x \n", (unsigned)u0, (unsigned)u1);
+                if (( u0 == 0x81 || u0 == 0x8d || u0 == 0x8f || u0 == 0x90 || u0 == 0x9d ) && u1 == 0x00) {
+		  //*(*outbuf) = c0;
+		  //// *(*outbuf+1) = c1;
+		  //*inbytesleft -= 2;		  
+		  //*outbytesleft --;
+		  //*inbuf += 2 ;
+		  //*outbuf ++;
+                  // conv_errno = 0;
+   		  /* lquest_mark = 1;
+		  pquest_mark = c0; // quest_mark;
+
+		  irreversible = tds_sys_iconv(error_cd, &pquest_mark, &lquest_mark, outbuf, outbytesleft);
+   		  one_character = skip_one_input_sequence(to->cd, &from->charset, inbuf, inbytesleft);
+		  */
+		  // return 0; 
+	        }
+
+
 		/* 
 		 * Invalid input sequence encountered reading from server. 
 		 * Skip one input sequence, adjusting pointers. 
 		 */
+		
 		one_character = skip_one_input_sequence(to->cd, &from->charset, inbuf, inbytesleft);
 
 		if (!one_character)
@@ -669,6 +699,7 @@ tds_iconv(TDSSOCKET * tds, TDSICONV * conv, TDS_ICONV_DIRECTION io,
 			if (irreversible == (size_t) - 1) {
 				tds_iconv_err(tds, TDSEICONV2BIG);
 			} else {
+			  printf("culprit0");
 				tds_iconv_err(tds, TDSEICONVI);
 				conv_errno = 0;
 			}
